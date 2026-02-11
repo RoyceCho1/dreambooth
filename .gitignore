@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Model outputs and checkpoints
+output_model/
+output_model_backpack/
+*.ckpt
+*.safetensors
+*.pth
+*.bin
+
+# Generated images
+generated_images/
+generated_images_backpack/
+
+# Data
+data/
+data_dog/
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE settings
+.vscode/
+.idea/

@@ -1,0 +1,28 @@
+model:
+  pretrained_model_name_or_path: "runwayml/stable-diffusion-v1-5"
+
+dataset:
+  instance_data_dir: "./data/instance_images" 
+  class_data_dir: "./data/class_images"       
+  instance_prompt: "a photo of a sks backpack"     
+  class_prompt: "a photo of a backpack"            
+  resolution: 512
+  center_crop: false
+
+training:
+  seed: 1337
+  train_batch_size: 1
+  max_train_steps: 1000
+  checkpointing_steps: 250       
+  gradient_accumulation_steps: 1 # 배치 사이즈를 늘리는 효과 (VRAM이 적을 때 유용)
+  learning_rate: 2e-6            # 논문 권장: 1e-6 ~ 2e-6 (Text Encoder 미학습 시)
+  lr_scheduler: "constant"       # "constant", "linear", "cosine", "cosine_with_restarts", "constant_with_warmup"
+  lr_warmup_steps: 0
+  use_8bit_adam: true            # 메모리 절약을 위해 8bit Adam(Optimizer) 사용 권장
+  mixed_precision: "fp16"        # "no", "fp16", "bf16"
+  gradient_checkpointing: true   
+
+prior_preservation:
+  enabled: true
+  prior_loss_weight: 1.0         
+  num_class_images: 200
