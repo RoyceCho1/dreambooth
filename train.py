@@ -21,16 +21,22 @@ from src.dreambooth.configs import DreamBoothConfig
 from src.dreambooth.dataset import DreamBoothDataset
 
 def main():
-    print("DreamBooth Training Phase 1: Setup & Models")
+    parser = argparse.ArgumentParser(description="DreamBooth Training")
+    parser.add_argument("--config", type=str, default="./configs/config.yaml", help="Path to config file")
+    parser.add_argument("--output_dir", type=str, default="output_model", help="Directory to save the model and checkpoints")
+    args = parser.parse_args()
+
+    print(f"DreamBooth Training Phase 1: Setup & Models (Config: {args.config}, Output: {args.output_dir})")
     
     # Config 로드
-    config = DreamBoothConfig("./configs/config_backpack.yaml")
+    config = DreamBoothConfig(args.config)
     
     # 설정값 변수 할당
     pretrained_model_name_or_path = config.model['pretrained_model_name_or_path']
     learning_rate = float(config.training['learning_rate'])
     use_8bit_adam = config.training['use_8bit_adam']
     mixed_precision = config.training['mixed_precision']
+    train_text_encoder = config.training.get('train_text_encoder', False)
     
     # Device 설정
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -48,7 +54,12 @@ def main():
 
     # VAE와 Text Encoder는 학습하지 않음 (Frozen)
     vae.requires_grad_(False)
-    text_encoder.requires_grad_(False)
+    
+    if not train_text_encoder:
+        text_encoder.requires_grad_(False)
+    else:
+        text_encoder.requires_grad_(True)
+        text_encoder.train()
     
     # UNet은 학습 (Trainable)
     unet.requires_grad_(True)
@@ -56,10 +67,17 @@ def main():
     # Gradient Checkpointing (VRAM 절약)
     if config.training['gradient_checkpointing']:
         unet.enable_gradient_checkpointing()
+        if train_text_encoder:
+            text_encoder.gradient_checkpointing_enable()
 
     # Frozen 모델들은 메모리 절약을 위해 fp16으로 변환하여 GPU에 올림
     vae.to(device, dtype=weight_dtype)
-    text_encoder.to(device, dtype=weight_dtype)
+    
+    if not train_text_encoder:
+        text_encoder.to(device, dtype=weight_dtype)
+    else:
+        # 학습 시에는 fp32로 로드 (User Request)
+        text_encoder.to(device, dtype=torch.float32)
     
     # 시드 고정 (Reproducibility)
     seed = config.training.get('seed') # config.yaml에 있는 값 사용
@@ -89,9 +107,13 @@ def main():
     else:
         optimizer_class = torch.optim.AdamW
 
-    # Optimizer에는 학습할 UNet의 파라미터만 전달
+    # Optimizer에는 학습할 파라미터 전달
+    params_to_optimize = unet.parameters()
+    if train_text_encoder:
+        params_to_optimize = itertools.chain(unet.parameters(), text_encoder.parameters())
+
     optimizer = optimizer_class(
-        unet.parameters(),
+        params_to_optimize,
         lr=learning_rate,
         betas=(0.9, 0.999),
         weight_decay=1e-2,
@@ -208,8 +230,10 @@ def main():
             # Text Embeddings
             # input_ids: [Batch*2, 77] -> encoder_hidden_states: [Batch*2, 77, 768]
             encoder_hidden_states = text_encoder(input_ids)[0]
-            # float32 for UNet input(결국 UNet은 fl32로 연산함)
-            encoder_hidden_states = encoder_hidden_states.to(dtype=torch.float32)
+            
+            # Text Encoder가 학습 모드(fp32)라면 Casting 불필요
+            if not train_text_encoder:
+                encoder_hidden_states = encoder_hidden_states.to(dtype=torch.float32)
 
             # U-Net으로 noise 예측
             model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample
@@ -255,9 +279,10 @@ def main():
 
                 # Checkpointing
                 if global_step % config.training.get('checkpointing_steps', 500) == 0:
-                    save_path = Path(f"output_model_backpack/checkpoint-{global_step}")
+                    save_path = Path(args.output_dir) / f"checkpoint-{global_step}"
                     # 만약 폴더가 없으면 생성
                     save_path.mkdir(parents=True, exist_ok=True)
+                    
                     
                     pipeline = StableDiffusionPipeline.from_pretrained(
                         pretrained_model_name_or_path,
@@ -287,7 +312,8 @@ def main():
         torch_dtype=torch.float16,
     )
     
-    save_path = Path("output_model_backpack")
+    save_path = Path(args.output_dir)
+    save_path.mkdir(parents=True, exist_ok=True)
     pipeline.save_pretrained(save_path)
     print(f"Model saved to {save_path}")
 

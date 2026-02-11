@@ -24,9 +24,4 @@ class DreamBoothConfig:
     def __repr__(self):
         return f"DreamBoothConfig(path={self.config_path}, content={self.config})"
 
-# 테스트 코드
-if __name__ == "__main__":
-    config = DreamBoothConfig("./configs/config_backpack.yaml")
-    print(f"Model ID: {config.model['pretrained_model_name_or_path']}")
-    print(f"Learning Rate: {config.training['learning_rate']}")
-    print(f"Prior Loss Weight: {config.prior['prior_loss_weight']}")
+

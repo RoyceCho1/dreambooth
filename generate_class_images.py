@@ -1,3 +1,4 @@
+import argparse
 import torch
 from pathlib import Path
 from diffusers import StableDiffusionPipeline
@@ -61,8 +62,11 @@ def generate_class_images(
     print("Class image generation complete.")
 
 def main():
-    config_path = "./configs/config_backpack.yaml"
-    config = DreamBoothConfig(config_path)
+    parser = argparse.ArgumentParser(description="Generate Class Images")
+    parser.add_argument("--config", type=str, default="./configs/config.yaml", help="Path to config file")
+    args = parser.parse_args()
+
+    config = DreamBoothConfig(args.config)
     
     model_id = config.model['pretrained_model_name_or_path']
     class_prompt = config.dataset['class_prompt']

@@ -21,6 +21,7 @@ training:
   use_8bit_adam: true            # 메모리 절약을 위해 8bit Adam(Optimizer) 사용 권장
   mixed_precision: "fp16"        # "no", "fp16", "bf16"
   gradient_checkpointing: true   
+  train_text_encoder: false       # Text Encoder 학습 여부
 
 
 prior_preservation:
