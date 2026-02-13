@@ -225,16 +225,13 @@ def main():
 
                 model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample.to(dtype=weight_dtype)
 
-                # Loss 계산을 위해 float32로 변환 (Stable Diffusion 학습 시 권장)
-                # target noise는 float32일 수도 있고 float16일 수도 있음. 
-                # 그러나 Loss Backward 시 float32가 안전함.
+                # Loss Backward 시 float32가 안전함.
                 if model_pred.dtype != torch.float32:
                     model_pred = model_pred.float()
 
                 
                 # Loss
                 if config.dataset['class_data_dir']:
-                    # Target noise도 float32로 변환하여 Loss 계산의 정밀도와 안정성을 확보
                     noise = noise.float()
                     
                     model_pred_instance, model_pred_class = torch.chunk(model_pred, 2, dim=0)
@@ -313,7 +310,7 @@ def main():
         save_path = Path(args.output_dir)
         save_path.mkdir(parents=True, exist_ok=True)
         pipeline.save_pretrained(save_path)
-        accelerator.print(f"Model saved to {save_path}")
+        accelerator.print(f"Model saved to {save_path}\n")
     
     accelerator.end_training()
 

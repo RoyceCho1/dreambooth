@@ -63,7 +63,7 @@ def generate_class_images(
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Class Images")
-    parser.add_argument("--config", type=str, default="./configs/config.yaml", help="Path to config file")
+    parser.add_argument("--config", type=str, default="./config/config.yaml", help="Path to config file")
     args = parser.parse_args()
 
     config = DreamBoothConfig(args.config)
