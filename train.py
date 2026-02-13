@@ -22,8 +22,8 @@ from src.dreambooth.dataset import DreamBoothDataset
 
 def main():
     parser = argparse.ArgumentParser(description="DreamBooth Training")
-    parser.add_argument("--config", type=str, default="./configs/config.yaml", help="Path to config file")
-    parser.add_argument("--output_dir", type=str, default="output_model", help="Directory to save the model and checkpoints")
+    parser.add_argument("--config", type=str, default="./configs/config_dogbackpack.yaml", help="Path to config file")
+    parser.add_argument("--output_dir", type=str, default="output_model/output_model_dogbackpack_textencoder", help="Directory to save the model and checkpoints")
     args = parser.parse_args()
 
     print(f"DreamBooth Training Phase 1: Setup & Models (Config: {args.config}, Output: {args.output_dir})")

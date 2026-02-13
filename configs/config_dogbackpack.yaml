@@ -2,10 +2,10 @@ model:
   pretrained_model_name_or_path: "runwayml/stable-diffusion-v1-5"
 
 dataset:
-  instance_data_dir: "./data/data_dog/instance_images" 
-  class_data_dir: "./data/data_dog/class_images"       
-  instance_prompt: "a photo of a sks dog"     
-  class_prompt: "a photo of a dog"            
+  instance_data_dir: "./data/data_dog_backpack/instance_images" 
+  class_data_dir: "./data/data_backpack/class_images"       
+  instance_prompt: "a photo of a sks backpack"     
+  class_prompt: "a photo of a backpack"            
   resolution: 512
   center_crop: false
 
@@ -21,10 +21,9 @@ training:
   use_8bit_adam: true            # 메모리 절약을 위해 8bit Adam(Optimizer) 사용 권장
   mixed_precision: "fp16"        # "no", "fp16", "bf16"
   gradient_checkpointing: true   
-  train_text_encoder: false      # Text Encoder 학습 여부
-
+  train_text_encoder: true       # Text Encoder 학습 여부
 
 prior_preservation:
   enabled: true
   prior_loss_weight: 1.0         
-  num_class_images: 200          
+  num_class_images: 200

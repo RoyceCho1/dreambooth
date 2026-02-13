@@ -6,14 +6,14 @@ from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
 
 def main():
     parser = argparse.ArgumentParser(description="DreamBooth Inference")
-    parser.add_argument("--model_path", type=str, default="./output_model", help="Path to the trained model")
+    parser.add_argument("--model_path", type=str, default="./output_model/output_model_dogbackpack_textencoder", help="Path to the trained model")
     parser.add_argument("--prompt", type=str, required=True, help="Text prompt for generation")
     parser.add_argument("--negative_prompt", type=str, default="low quality, worst quality, bad anatomy, deformed, blurry", help="Negative prompt")
-    parser.add_argument("--output_dir", type=str, default="./generated_images", help="Output directory")
+    parser.add_argument("--output_dir", type=str, default="./generated_images/dogbackpack_textencoder/coffee", help="Output directory")
     parser.add_argument("--num_inference_steps", type=int, default=50, help="Number of denoising steps")
     parser.add_argument("--guidance_scale", type=float, default=7.5, help="Guidance scale (CFG)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
-    parser.add_argument("--num_images", type=int, default=1, help="Number of images to generate")
+    parser.add_argument("--num_images", type=int, default=10, help="Number of images to generate")
     
     args = parser.parse_args()
 

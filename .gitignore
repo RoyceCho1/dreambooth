@@ -5,7 +5,6 @@ __pycache__/
 
 # Model outputs and checkpoints
 output_model/
-output_model_backpack/
 *.ckpt
 *.safetensors
 *.pth
@@ -13,11 +12,9 @@ output_model_backpack/
 
 # Generated images
 generated_images/
-generated_images_backpack/
 
 # Data
 data/
-data_dog/
 
 # Environment files
 .env
